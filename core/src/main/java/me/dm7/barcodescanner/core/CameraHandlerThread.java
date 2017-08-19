@@ -18,19 +18,23 @@ public class CameraHandlerThread extends HandlerThread {
         start();
     }
 
-    public void startCamera(final int cameraId) {
-        Handler localHandler = new Handler(getLooper());
+    public void startCamera(final int cameraId) throws CameraOpenException {
+        Handler localHandler = new Handler(Looper.getMainLooper());
         localHandler.post(new Runnable() {
             @Override
             public void run() {
-                final Camera camera = CameraUtils.getCameraInstance(cameraId);
-                Handler mainHandler = new Handler(Looper.getMainLooper());
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mScannerView.setupCameraPreview(CameraWrapper.getWrapper(camera, cameraId));
-                    }
-                });
+                try {
+                    final Camera camera = CameraUtils.getCameraInstance(cameraId);
+                    Handler mainHandler = new Handler(Looper.getMainLooper());
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mScannerView.setupCameraPreview(CameraWrapper.getWrapper(camera, cameraId));
+                        }
+                    });
+                } catch (CameraOpenException coe) {
+                    coe.printStackTrace();
+                }
             }
         });
     }

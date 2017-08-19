@@ -1,3 +1,10 @@
+Instructions for Stampede
+=========================
+
+run this to build all aar files
+./gradlew assemble
+
+
 Introduction
 ============
 

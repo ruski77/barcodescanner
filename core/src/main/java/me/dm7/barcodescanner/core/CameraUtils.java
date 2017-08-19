@@ -6,7 +6,7 @@ import java.util.List;
 
 public class CameraUtils {
     /** A safe way to get an instance of the Camera object. */
-    public static Camera getCameraInstance() {
+    public static Camera getCameraInstance() throws CameraOpenException {
         return getCameraInstance(getDefaultCameraId());
     }
 
@@ -26,7 +26,8 @@ public class CameraUtils {
     }
 
     /** A safe way to get an instance of the Camera object. */
-    public static Camera getCameraInstance(int cameraId) {
+    public static Camera getCameraInstance(int cameraId) throws CameraOpenException {
+        System.out.println("#### in getCameraInstance(), cameraId = "+cameraId);
         Camera c = null;
         try {
             if(cameraId == -1) {
@@ -35,29 +36,39 @@ public class CameraUtils {
                 c = Camera.open(cameraId); // attempt to get a Camera instance
             }
         }
-        catch (Exception e) {
+        catch (RuntimeException re) {
             // Camera is not available (in use or does not exist)
+            re.printStackTrace();
+            throw new CameraOpenException("Could not connect to camera");
         }
         return c; // returns null if camera is unavailable
     }
 
     public static boolean isFlashSupported(Camera camera) {
-        /* Credits: Top answer at http://stackoverflow.com/a/19599365/868173 */
+		/* Credits: Top answer at http://stackoverflow.com/a/19599365/868173 */
+
+        boolean retVal = true;
+
         if (camera != null) {
-            Camera.Parameters parameters = camera.getParameters();
+            try {
+                Camera.Parameters parameters = camera.getParameters();
 
-            if (parameters.getFlashMode() == null) {
-                return false;
-            }
+                if (parameters.getFlashMode() == null) {
+                    retVal = false;
+                }
 
-            List<String> supportedFlashModes = parameters.getSupportedFlashModes();
-            if (supportedFlashModes == null || supportedFlashModes.isEmpty() || supportedFlashModes.size() == 1 && supportedFlashModes.get(0).equals(Camera.Parameters.FLASH_MODE_OFF)) {
-                return false;
+                List<String> supportedFlashModes = parameters.getSupportedFlashModes();
+                if (supportedFlashModes == null || supportedFlashModes.isEmpty() || supportedFlashModes.size() == 1 && supportedFlashModes.get(0).equals(Camera.Parameters.FLASH_MODE_OFF)) {
+                    retVal = false;
+                }
+            } catch (RuntimeException e) {
+                // may be: "Fatal Exception: java.lang.RuntimeException: getParameters failed (empty parameters)"
+                retVal = false;
             }
         } else {
-            return false;
+            retVal = false;
         }
 
-        return true;
+        return retVal;
     }
 }

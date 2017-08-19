@@ -172,7 +172,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         mViewFinderView.setupViewFinder();
     }
 
-    public void startCamera(int cameraId) {
+    public void startCamera(int cameraId) throws CameraOpenException {
         if(mCameraHandlerThread == null) {
             mCameraHandlerThread = new CameraHandlerThread(this);
         }
@@ -191,7 +191,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         }
     }
 
-    public void startCamera() {
+    public void startCamera() throws CameraOpenException {
         startCamera(CameraUtils.getDefaultCameraId());
     }
 
